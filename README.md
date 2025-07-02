@@ -1,6 +1,6 @@
 # single_cell_macrophage_memory
 This repository is associated with Wang AG, Mercado Vasquez JG, Son M, et al., "Deterministic encoding of innate immune memory in single macrophages through cell-intrinsic and paracrine feedback". 
-In folder Codes4Github you will find the scripts and data necessary to reproduce the figures in the manuscript.
+Here you will find the scripts and data necessary to reproduce the figures in the manuscript.
 
 The scripts are: 
 
