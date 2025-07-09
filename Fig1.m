@@ -231,4 +231,4 @@ for jj=1:2
     end
 end
 %% Save data
-save genExtFeat.mat data0 tAct gname groups MIfeatE MIfeatL fE fL datvioE datvioL idxp
+%% save genExtFeat.mat data0 tAct gname groups MIfeatE MIfeatL fE fL datvioE datvioL idxp
