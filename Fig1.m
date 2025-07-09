@@ -200,7 +200,7 @@ for jj=1:2
     figure("Name","Phase 1")
     for i=1:12
         subplot(4,3,i)
-        violin({datvioE{idxp(i),jj,1},datvioE{idxp(i),jj,2}},'facecolor',col,'mc',[],'medc','black','bw',mkE{idxp(i),jj,2}/3)
+        violin3({datvioE{idxp(i),jj,1},datvioE{idxp(i),jj,2}},'facecolor',col,'mc',[],'medc','black','bw',mkE{idxp(i),jj,2}/3)
         rn=ranksum(datvioE{idxp(i),jj,1},datvioE{idxp(i),jj,2});
         hold on
         xticklabels(xlb(jj,:))
@@ -219,7 +219,7 @@ for jj=1:2
     figure("Name","Phase 2")
     for i=1:12
         subplot(4,3,i)
-        violin({datvioL{idxp(i),jj,1},datvioL{idxp(i),jj,2}},'facecolor',col,'mc',[],'medc','black','bw',mkL{idxp(i),jj,2}/3)
+        violin3({datvioL{idxp(i),jj,1},datvioL{idxp(i),jj,2}},'facecolor',col,'mc',[],'medc','black','bw',mkL{idxp(i),jj,2}/3)
         rn=ranksum(datvioL{idxp(i),jj,1},datvioL{idxp(i),jj,2});
         hold on
         xticklabels(xlb(jj,:))
