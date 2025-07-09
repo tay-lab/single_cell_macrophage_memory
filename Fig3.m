@@ -88,7 +88,7 @@ for i=1:4
         mkE(j)=median(vioTab{j},"omitnan");
         mpx=[mpx prctile(vioTab{j},96)];
     end
-    violin({vioTab{:}},'facecolor',col,'mc',[],'medc','black');
+    violin3({vioTab{:}},'facecolor',col,'mc',[],'medc','black');
      hold on
         plot(mkE,'o')
     title(fE2(i))
@@ -109,7 +109,7 @@ for i=1:4
         mkE(j)=median(vioTab{j},"omitnan");
         mpx=[mpx prctile(vioTab{j},99)];
     end
-    violin({vioTab{:}},'facecolor',col,'mc',[],'medc','black');
+    violin3({vioTab{:}},'facecolor',col,'mc',[],'medc','black');
     hold on
         plot(mkE,'o')
     title(fL2(i))
