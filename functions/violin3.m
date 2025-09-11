@@ -88,13 +88,13 @@ function[h,L,MX,MED,bw]=violin3(Y,varargin)
 %defaults:
 %_____________________
 xL=[];
-fc=[1 0.5 0];
+fc=[250 250 30]/255;%[1 0.5 0];
 lc='k';
 alp=0.5;
 mc='k';
 medc='r';
 b=[]; %bandwidth
-plotlegend=1;
+plotlegend=0;
 plotmean=1;
 plotmedian=1;
 x = [];

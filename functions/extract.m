@@ -30,12 +30,11 @@ function feat=extract(data,threshActivation)
     YY1=Y(z{1});    
     tt2=t(z{2});
     YY2=Y(z{2});
-
+    
     feat=addvars(feat,tt1','NewVariableNames',"Phase1 Time");
     feat=addvars(feat,tt2','NewVariableNames',"Phase2 Time");
     feat=addvars(feat,YY1','NewVariableNames',"Phase1 NfkB");
     feat=addvars(feat,YY2','NewVariableNames',"Phase2 NfkB");
-
     for i=1:2
         tt=t(z{i});
         tt=tt-tt(1);

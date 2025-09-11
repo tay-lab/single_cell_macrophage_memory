@@ -8,7 +8,7 @@ gname={'Control -> LPSnaive' 'CpG -> LPScond' 'Control -> TNFnaive' 'PolyIC -> T
 
 [data0,tAct]=genData(groups,gname,R);
 
-save genExtFeat data0 tAct gname groups
+save addpath genExtFeat data0 tAct gname groups
 
 
 function [data,threshActivation]=genData(groups,gname,R)
