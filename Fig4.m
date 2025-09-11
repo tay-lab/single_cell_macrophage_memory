@@ -1,3 +1,11 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figure 4 related to 
+% Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
+%
+% Andrew G Wang et al.
+%
+% Corresponding author: tays@uchicago.edu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TNFblock PIC features
 clc
 clear

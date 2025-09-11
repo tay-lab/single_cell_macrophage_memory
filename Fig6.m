@@ -1,3 +1,11 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figure 6 related to 
+% Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
+%
+% Andrew G Wang et al.
+%
+% Corresponding author: tays@uchicago.edu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Fig 6
 addpath functions\
 % Create synthetic cells

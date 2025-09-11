@@ -1,11 +1,20 @@
-%% Generates Figure 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figure 1 related to 
+% Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
+%
+% Andrew G Wang et al.
+%
+% Corresponding author: tays@uchicago.edu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Fig 1A
+%Load functions and NFkB traces
 addpath functions\
 load genExtFeat.mat
 
-%% Fig 1A
 Nf=[data0.("Phase1 NfkB") data0.("Phase2 NfkB")];            %All Traces
 ti=[data0.("Phase1 Time")(1,:) data0.("Phase2 Time")(1,:)];  %Time in traces
 
+%Plot the heatmap
 figure
 for i=1:2
     subplot(1,2,i)
@@ -20,7 +29,7 @@ for i=1:2
 end
 
 %% Fig 1B
-
+%Computes the Mutual Information for each time point
 MIcomb=zeros(length(ti),1);
 k=10;
 for jj=1:2
@@ -57,20 +66,13 @@ LNfMI=zeros(size(data0,1),1);
 [~,tp2]=findpeaks(MIcomb(:,2),"MinPeakProminence",.05);
 ENfMI(zz1)=Nf(zz1,tp1(1));
 ENfMI(zz2)=Nf(zz2,tp2(1));
-if length(tp1)>1
 LNfMI(zz1)=Nf(zz1,tp1(2));
-else
-    LNfMI(zz1)=Nf(zz1,tp1(1));
-end
-if length(tp2)>1
-    LNfMI(zz2)=Nf(zz2,tp2(2));
-else
-    LNfMI(zz2)=Nf(zz2,tp1(1));
-end
+LNfMI(zz2)=Nf(zz2,tp2(2));
+
 data0.("Phase1 NfkB MI")=ENfMI;
 data0.("Phase2 NfkB MI")=LNfMI;
 %% Fig 1C
-
+%Compare mutual information between naive and conditioned response
 Nf1=data0.("Phase2 NfkB");
 Nf2=data0.("Phase2 NfkB");
 
@@ -104,7 +106,7 @@ set(gca,'FontSize',18,'FontName','Times New Roman')
 title("Ligand specificity")
 
 %% Fig 1D
-
+%Compute MI for each feature
 featurenames = [
     "Phase1 NfkB MI","Phase1 Activation","Phase1 Deactivation",...
         "Phase1 Speed",'Phase1 Duration','Phase1 Fourier',...
@@ -193,6 +195,7 @@ text(xtips1,ytips1,fn(idxp),'HorizontalAlignment','left',...
     'VerticalAlignment','middle')
 
 %% Fig 1E-H and SubFig 2A-B
+%Draw violin plots for each feature
 col=hsv(2);
 xlb=[{"Ctrl","CpG"}; {"Ctrl","PolyIC"}]; 
 for jj=1:2
@@ -231,4 +234,4 @@ for jj=1:2
     end
 end
 %% Save data
-%% save genExtFeat.mat data0 tAct gname groups MIfeatE MIfeatL fE fL datvioE datvioL idxp
+% save functions\genExtFeat data0 tAct gname groups MIfeatE MIfeatL fE fL datvioE datvioL idxp

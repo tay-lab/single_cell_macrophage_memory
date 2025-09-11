@@ -1,15 +1,31 @@
-%% Generates Figure 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figure 3 related to 
+% Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
+%
+% Andrew G Wang et al.
+%
+% Corresponding author: tays@uchicago.edu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%Load functions and NFkB traces
 addpath functions\
 load genExtFeat.mat     %Load Dataclear
-
 %% Fig 2A-D
+rng default
 figure
 [fE2,fL2]=cleanfeat(MIfeatE,MIfeatL,fE,fL,datvioE,datvioL,0,2);
 zz2=data0.Category==gname{4};
 data=data0(zz2,:);
 
+col= [ 
+0 114 189;
+217 83 25;
+237 177 32;
+126 47 142;
+119 172 48;
+    ]/255;
+
 kmax=5;
-col=parula(kmax);
 ratings=table2array(data(:,fL2));
 opts = statset('MaxIter',1000);
 [clsT,Cnt]=kmeans(ratings,kmax,"Replicates",10,"Distance","cityblock","Options",opts);
@@ -62,10 +78,10 @@ xlim([-10 480])
 ylim([-.1 4])
 set(gca,'FontSize',10)
 hold off
-legend
+legend(["1","2","3","4","5"])
 
 subplot(4,7,[6,28])
-imagesc(tt(1,:),1:size(dd,1),dd,[0 6])
+imagesc(tt(1,:),1:size(dd,1),dd,[0 4])
 yticks(cumsum(nc))
 ylabel([])
 set(gca, 'Xlim', [0 480]);
@@ -89,9 +105,9 @@ for i=1:4
         mpx=[mpx prctile(vioTab{j},96)];
     end
     violin3({vioTab{:}},'facecolor',col,'mc',[],'medc','black');
-     hold on
-        plot(mkE,'o')
-    title(fE2(i))
+    ylabel(fE2(i))
+    xticks(1:5)
+    xticklabels(1:5)
     % set(gca,'FontSize',8,'ylim',[0 max(mpx)])
     set(gca,'FontSize',8,'ylim',[0 Inf])
 
@@ -110,92 +126,118 @@ for i=1:4
         mpx=[mpx prctile(vioTab{j},99)];
     end
     violin3({vioTab{:}},'facecolor',col,'mc',[],'medc','black');
-    hold on
-        plot(mkE,'o')
-    title(fL2(i))
+    ylabel(fL2(i))
+    xticks(1:5)
+    xticklabels(1:5)
+    if i==2 | i==4
     set(gca,'FontSize',8,'ylim',[0 Inf])
+    else
+    set(gca,'FontSize',8,'ylim',[0 max(mpx)])
+    end
 end
 
-%% LSTM model
-rng default
-seqA=data.("Phase1 NfkB");
-seqB=data.("Phase2 NfkB");
-hpart = cvpartition(size(seqA,1),'Holdout',.2); % Nonstratified partition
+%% LSTM model Categorical. Cross-Validation
+[accuracyLSTM,datP]=LSTMModel(data,"Phase1 NfkB",5);
+[accuracyLinear,~]=svmModel(data,fE2,5);
+[accuracyTree,~]=treeModel(data,fE2,5);
+[accuracyRandom,weights]=randomModel(data,5);
+%%
+classNames=[{'1'} {'2'} {'3'} {'4'} {'5'}];
+k=5;
+cvLabels = cell(k,1);
+cvScores = cell(k,1);
+for fold = 1:k
+    cvLabels{fold} = datP{fold}{3};
+    cvScores{fold} = datP{fold}{4};
+    YTestSmallNet = scores2label(cvScores{fold},classNames);
+    Cs(:,:,fold)=confusionmat(cvLabels{fold},YTestSmallNet);
+end
+rocObj = rocmetrics(cvLabels,cvScores,classNames);
 
-ratTrain=seqA(hpart.training,:);
-ratTest=seqA(hpart.test,:);
+numClasses=5;
+precision = zeros(numClasses,k, 1);
+recall = zeros(numClasses,k, 1);
+f1_score = zeros(numClasses,k, 1);
+accuracy=zeros(k, 1);
+for fold=1:k
+    ConfMatrix=Cs(:,:,fold);
+correctPredictions = sum(diag(ConfMatrix));
+totalSamples = sum(ConfMatrix(:));
+accuracy(fold) = correctPredictions / totalSamples;
 
-yTrain=seqB(hpart.training,:);
-yTest=seqB(hpart.test,:);
+for c = 1:numClasses
+    TP = ConfMatrix(c, c);
+    FP = sum(ConfMatrix(:, c)) - TP;
+    FN = sum(ConfMatrix(c, :)) - TP;
 
-clsTTest=clsT(hpart.test);
+    if TP + FP == 0
+        precision(c,fold) = NaN;
+    else
+        precision(c,fold) = TP / (TP + FP);
+    end
 
-numFeatures = size(seqA,2);
-numHiddenUnits = 128;
-numResponses = size(seqB,2);
-maxEpochs = 200;
-miniBatchSize = 60;
+    if TP + FN == 0
+        recall(c,fold) = NaN;
+    else
+        recall(c,fold) = TP / (TP + FN);
+    end
 
-layers = [ ...
-    sequenceInputLayer(numFeatures)
-    lstmLayer(numHiddenUnits,OutputMode="sequence")
-    selfAttentionLayer(8,64,"Name","selfattention")
-    fullyConnectedLayer(numResponses)];
+    if isnan(precision(c,fold)) || isnan(recall(c,fold)) || (precision(c,fold) + recall(c,fold) == 0)
+        f1_score(c,fold) = NaN;
+    else
+        f1_score(c,fold) = 2 * (precision(c,fold) * recall(c,fold)) / (precision(c,fold) + recall(c,fold));
+    end
 
-options = trainingOptions("adam", ...
-    MaxEpochs=maxEpochs, ...
-    MiniBatchSize=miniBatchSize, ...
-    InitialLearnRate=0.001, ...
-    GradientThreshold=1, ...
-    Shuffle="every-epoch", ...
-    Metrics="rmse", ...
-    Plots="training-progress", ...
-    Verbose=0);
+end
 
-net = trainnet(num2cell(ratTrain,2),num2cell(yTrain,2),layers,"mse",options);
-YPredict = cell2mat(minibatchpredict(net,num2cell(ratTest,2),MiniBatchSize=1,UniformOutput=false));
+end
 
-%% Fig 2G 
-AA=[ratTest yTest];
-BB=[ratTest YPredict];
-figure 
+figure("Name","LSTM Accuracy")
+boxplot(f1_score','Widths',0.5)
+hold on
+scatter([1:k],f1_score,300,".","blue")
+scatter([1:k],weights,300,"_","magenta","LineWidth",2)
+ylabel("F1 score")
+xlabel("Group")
+ylim([0 .7])
+set(gca,"FontSize",12)
 
-auc=trapz(BB(:,1:10),2);
-[~,idx]=sort(auc,'descend');
-imagesc(BB(idx,:),[0 5])
-xlabel("Time (min)")
-title("Predicted NFkB traces in PolyI:C-> TNF")
-
-%% Fig 2H
 figure
-    ftime=[0:79]*6;
+% subplot(3,3,[1 6])
+totalConfMatrix=sum(Cs,3);
+cm=totalConfMatrix./sum(totalConfMatrix);
+h=heatmap(round(100*cm,1));
+h.CellLabelFormat = '%.1f%%'; % Displays one decimal place and a percent sign
+h.Title = 'Group classification';
+ylabel("True Group")
+h.ColorbarVisible = 'off';
+set(gca,"FontSize",12)
+% h.XDisplayLabels = {'','','','',''};
+xlabel("Predicted Group")
 
-    plot(ftime,median(BB),"b",'LineWidth',2)
-    hold on
+% clim([0 76])
+% 
+% subplot(3,3,7:9)
+% h=heatmap(round([100*diag(cm)'; 100*(1-diag(cm)')],1));
+% xlabel("Predicted Group")
+% h.ColorbarVisible = 'off';
+% clim([0 76])
 
-    plot(ftime,median(AA),"--",'LineWidth',2)
-    p25 = prctile(AA,25);
-    p75 = prctile(AA,75);
-    hIQR = fill([ftime(41:end),fliplr(ftime(41:end))],[p75(41:end),fliplr(p25(41:end))],"r","FaceAlpha",.1);
+colormap sky
 
-    ylabel("NFkB dynamics")
-    xlabel("Time step")
-    legend(["Test Data" "Predicted"],Location="best")
-    ylim([0 3])
-    
-%% Fig 2I
-idx=[85    69     5    53];
-for i = 1:numel(idx)
-    subplot(2,2,i)
-    plot([0:79]*6-6,AA(idx(i),:),"LineWidth",2)
-    hold on
-    plot([40:79]*6-6,BB(idx(i),41:end),"--","LineWidth",2)
-    hold off
-    
-    xlim([0 79]*6)
-    title("Test Observation " + idx(i))
-    ylim([-.5 6])
-    xlabel("Time Step")
-    set(gca,'FontSize',10,'FontName','sans serif')
-end
-legend(["Test Data" "Predicted"],Location="best")
+set(gca,"FontSize",12)
+
+figure
+boxplot([accuracyLSTM,accuracyLinear,accuracyTree,accuracyRandom],'Widths',0.5)
+hold on
+scatter([1:4],[accuracyLSTM,accuracyLinear,accuracyTree,accuracyRandom],300,".","blue")
+xticklabels(["LSTM","SVM","Tree","Random"])
+ylabel("Accuracy")
+xlabel("Model")
+set(gca,"FontSize",12)
+
+
+figure("Name","LSTM ROC")
+plot(rocObj,ShowConfidenceIntervals=true,ShowModelOperatingPoint=false)
+
+% exportgraphics(gcf, 'myPlot.pdf', 'ContentType', 'vector');
