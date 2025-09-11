@@ -2,7 +2,7 @@
 % Figure 7 related to 
 % Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
 %
-% Andrew G Wang et al.
+% Wang AG, Mercado Vasquez JG, Son M, et al
 %
 % Corresponding author: tays@uchicago.edu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
