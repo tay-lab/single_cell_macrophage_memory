@@ -1,6 +1,6 @@
 # single_cell_macrophage_memory
 
-Code and data to reproduce the figures of Wang AG, Mercado-Vásquez JG, Son M, et al.,
+Code and data to reproduce the figures of Wang AG, Mercado-Vásquez G, Son M, et al.,
 "Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback" (Cell Systems).
 
 ## Requirements

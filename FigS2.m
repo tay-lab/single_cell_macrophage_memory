@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Figure S2 related to
 % Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
-% Wang AG, Mercado Vasquez JG, Son M, et al. Corresponding author: tays@uchicago.edu
+% Wang AG, Mercado-Vásquez G, Son M, et al. Corresponding author: tays@uchicago.edu
 %
 % Single-cell differences in the remaining 8 NF-kB features (Figure S2A, Phase I; Figure S2B, Phase II).
 % Features are ranked by mutual information as in Figure 1D; the top 4 are shown in Figure 1E-H and features

@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Figure S6 related to
 % Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
-% Wang AG, Mercado Vasquez JG, Son M, et al. Corresponding author: tays@uchicago.edu
+% Wang AG, Mercado-Vásquez G, Son M, et al. Corresponding author: tays@uchicago.edu
 %
 % Initial protein expression variability and Jensen-Shannon distance (Figure S6A-C).
 % Experimental data: phase II / phase I NF-kB peak ratios of single cells (genExtFeat.mat; polyI:C -> TNF

@@ -1,7 +1,7 @@
 # =============================================================================
 # NicheNet ligand activity analysis  -  Figure 4B-C and Figure S4A-B
 #
-# Wang, Mercado-Vasquez, Son, ..., Tay. "Encoding innate immune memory in single
+# Wang, Mercado-Vásquez, Son, ..., Tay. "Encoding innate immune memory in single
 # macrophages through cell intrinsic and paracrine feedback" (Cell Systems).
 #
 # Re-analysis of bulk RNA-seq of BMDMs (GEO: GSE260996). Asks which ligands that

@@ -1,7 +1,7 @@
 # =====================================================================================================
 # Figure 4A, 4J and Figure S4G related to
 # Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
-# Wang AG, Mercado Vasquez JG, Son M, et al. Corresponding author: tays@uchicago.edu
+# Wang AG, Mercado-Vásquez G, Son M, et al. Corresponding author: tays@uchicago.edu
 #
 # Re-analysis of bulk RNA-seq of BMDMs (GEO: GSE260996; counts in data/rnaseq/merged_FC.csv, 11 conditions x 3
 # replicates; column names = phase I stimulus + phase II stimulus: F = media, C = CpG, P = polyI:C, L = LPS, T = TNF).

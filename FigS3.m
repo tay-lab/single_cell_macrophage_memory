@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Figure S3 related to
 % Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
-% Wang AG, Mercado Vasquez JG, Son M, et al. Corresponding author: tays@uchicago.edu
+% Wang AG, Mercado-Vásquez G, Son M, et al. Corresponding author: tays@uchicago.edu
 %
 % Performance of the LSTM model and of a weighted random classifier (Figure S3A-C: tolerized LPS response,
 % clusters of Figure 2; Figure S3D-F: primed TNF response, clusters of Figure 3).
