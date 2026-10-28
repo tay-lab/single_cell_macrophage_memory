@@ -8,7 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %Load functions and NFkB traces
-addpath functions\
+addpath functions simulation_results classifier_results data/flow   % run from the main code folder: all paths are relative to the current folder
 load genExtFeat.mat     %Load Dataclear
 %% Fig 2A-D
 rng default
@@ -130,11 +130,19 @@ end
 % clc
 % summary(categorical(clsT))
 
-%% LSTM model Categorical. Cross-Validation
-[accuracyLSTM,datP]=LSTMModel(data,"Phase1 NfkB",5);
-[accuracyLinear,~]=svmModel(data,fE2,5);
-[accuracyTree,~]=treeModel(data,fE2,5);
-[accuracyRandom,weights]=randomModel(data,5);
+%% LSTM model Categorical. Cross-Validation (Figure 2G-I and Figure S3A-C)
+runTraining = false;   % false: load the saved 5-fold cross-validation results (classifier_results/); true: retrain and overwrite
+resFile = 'classifier_results/Fig2_classifiers.mat';   % relative to the main code folder
+if runTraining || ~isfile(resFile)
+    [accuracyLSTM,datP]=LSTMModel(data,"Phase1 NfkB",5);
+    [accuracyLinear,~]=svmModel(data,fE2,5);
+    [accuracyTree,~]=treeModel(data,fE2,5);
+    [accuracyRandom,weights,f1Random,CsRandom]=randomModel(data,5);   % weighted random classifier (Figure S3)
+    if ~isfolder(fileparts(resFile)), mkdir(fileparts(resFile)); end
+    save(resFile,'accuracyLSTM','datP','accuracyLinear','accuracyTree','accuracyRandom','weights','f1Random','CsRandom','-v7');
+else
+    load(resFile)   % accuracyLSTM, datP, accuracyLinear, accuracyTree, accuracyRandom, weights, f1Random, CsRandom
+end
 %%
 classNames=[{'1'} {'2'} {'3'} {'4'} {'5'}];
 k=5;

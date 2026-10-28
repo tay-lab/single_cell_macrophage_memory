@@ -8,7 +8,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Fig 1A
 %Load functions and NFkB traces
-addpath functions\
+addpath functions simulation_results classifier_results data/flow   % run from the main code folder: all paths are relative to the current folder
 load genExtFeat.mat
 
 Nf=[data0.("Phase1 NfkB") data0.("Phase2 NfkB")];            %All Traces
@@ -28,6 +28,7 @@ for i=1:2
     title(gname{2*i})
 end
 
+countlabels(data0.Category)
 %% Fig 1B
 %Computes the Mutual Information for each time point
 MIcomb=zeros(length(ti),1);
@@ -56,7 +57,7 @@ set(gca,'Xlim',[240 480])
 xlabel("Time (min)")
 ylabel("Mutual Information (bits)")
 set(gca,'FontSize',14,'FontName','Times New Roman')
-legend({"CpG -> LPS","PolyI:C -> TNF"})
+legend({"LPS_{naive} vs LPS_{cond}","TNF_{naive} vs TNF_{cond}"})
 
 zz1=data0.Category==gname{1} | data0.Category==gname{2};
 zz2=data0.Category==gname{3} | data0.Category==gname{4};
@@ -169,7 +170,7 @@ subplot(1,2,1)
 bh=barh(MIfeatE(idxp,:),1.5);
 set(gca,'YDir','reverse','Xlim',[0 1])
 % set(gca,'FontSize',12,'FontName','Times New Roman')
-legend({"CpG vs Ctrl","PIC vs Ctrl"},'Location','southeast')
+legend({"CpG vs Ctrl","PolyIC vs Ctrl"},'Location','southeast')
 yticks([])
 ylabel("Features")
 xlabel("Mutual Information (bits)")
@@ -183,7 +184,7 @@ text(xtips1,ytips1,fn(idxp),'HorizontalAlignment','left',...
 subplot(1,2,2)
 [~,idxp]=sort(MIfeatL(:,1),"descend");
 bh=barh(MIfeatL(idxp,:),1.5);
-legend({"CpG -> LPS vs Ctrl -> LPS","PIC -> TNF vs Ctrl -> TNF"},'Location','southeast')
+legend({"LPS_{naive} vs LPS_{cond}","TNF_{naive} vs TNF_{cond}"},'Location','southeast')
 set(gca,'YDir','reverse','Xlim',[0 .4])
 yticks([])
 ylabel("Features")

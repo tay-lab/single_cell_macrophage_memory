@@ -5,20 +5,51 @@
 % Wang AG, Mercado Vasquez JG, Son M, et al
 %
 % Corresponding author: tays@uchicago.edu
+%
+% Single-cell model of CpG-induced tolerance (Figure 5B-F).
+% Simulates nj = 1000 synthetic cells with initial TLR9 levels drawn from Gamma(2.2, 1420), the fit
+% to the TLR9 flow cytometry (Figure 5C), and plots the population means (5B), the single-cell
+% tracemap (5D), the 10th/50th/90th-percentile cells (5E) and their active receptor (5F).
+% Uses: functions/getScore.m, TNF_Model_2.m, Params.m, genReceptors.m. Runtime ~1.5 min (14 workers).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 % Load functions
-addpath functions\
+addpath functions simulation_results classifier_results data/flow   % run from the main code folder: all paths are relative to the current folder
+runSimulation = false;   % false: load the saved 1000-cell results from simulation_results/ (seconds);
+                         % true: re-run the simulation (~1-2 min with a parallel pool) and overwrite them
 % Create synthetic cells
+pp=2;       %%p==0 No plots, p==1 plot traces, p==2 plot heat map
 dt=60;
 tspan=dt:dt:240*60;
 tt=0:480;    % Time course in simulation
-nj=1000;     % # synthetic cells
-[Ms1,Ms2]=genReceptors(nj);
-pp=0;       %%p==0 No plots, p==1 plot traces, p==2 plot heat map
-[Model,tit]=getScore(Ms1,Ms2,pp,tt,nj,dt,tspan);
+nj=1000;     % # synthetic cells   % 1000 synthetic cells, as reported in the figure legends
+Ms=genReceptors(nj);
+M=2000;
+% Par=ParS;
+Par(1)=2.5*10^-5;       %sc IFN translation
+Par(2)=1*10^-5;          %sc TNF translation
+Par(3)=1;               %Total NF-kB
+Par(4)=2;               %Total IKK
+Par(5)=1;               %Total Ikkk
+
+yin=zeros(23,1);
+yin(1) = M;   %Receptors TNF
+yin(2) = M;   %Receptors LPS
+
+yin(13) = 0;   %Nuclear NFkB
+yin(14) = 0;  %mRNA of target gene (uM)
+yin(15) = 0.001;   %Free Ikba (uM)
+yin(16) = 0.0001;   %A20 (uM)
+yin(17) = 0;    %Ligand TNF
+yin(18) = 0;    %Ligand LPS
+yin(19) = 0;    %Ligand PolyIC
+yin(20) = 0;    %Ligand CpG
+yin(21) = 0;    %Ligand IFNg
+
+[Model,tit]=simOrLoad('Fig5_cells', runSimulation, @() getScore(Ms,pp,tt,nj,dt,tspan,yin,Par,M), [14 15 16], {'NfkB','A20','Ikba','TLR9'});   % 1000 synthetic cells
 %% Figure 5B-F
 %%(14) Ctrl->LPS, (15) LPS(TNF-IFN-KO)->Ctrl, (16) CpG(TNF-IFN-KO)->LPS
+figure
 flag=14;
 clim=[0 1];
 a2p=[14 15 16];
@@ -64,7 +95,7 @@ hold on
 plot(tt,mean(Ikba),"LineWidth",2,"Color",col(2,:),"LineStyle","-")
 hold off
 ylabel("Neg. FB  (uM)")
-ylim([0 .04])
+ylim([0 .02])   % set to match the published panel (Fig 5B right axis, 0-0.02 uM)
 xlim([0 480])
 set(gca,"FontSize",8)
 legend(["NfkB","A20","Ikba"],"Location","best")
@@ -72,11 +103,11 @@ legend(["NfkB","A20","Ikba"],"Location","best")
 end
 
 %%
-[Ms1,Ms2]=genReceptors(1000);
-Ms1=prctile(Ms1,[10,50,90]);
-Ms2=prctile(Ms2,[10,50,90]);
+Ms=genReceptors(1000);
+Ms=prctile(Ms,[10,50,90]);
 nj=3;
-[Model2]=getScore(Ms1,Ms2,0,tt,nj,dt,tspan);
+[Model2]=simOrLoad('Fig5_percentiles', runSimulation, @() getScore(Ms,pp,tt,nj,dt,tspan,yin,Par,M), 16, {'NfkB','A20','Ikba','TLR9'});   % 10th/50th/90th percentile cells
+
 tit2=["10th","50th","90th"];
 
 clim=[0 1.2];
@@ -107,7 +138,7 @@ plot(tt,Ikba(i,:),"LineWidth",2,"Color",col(2,:),"LineStyle","-")
 hold off
 ylabel("Neg. FB (uM)")
 set(gca,"FontSize",12)
-ylim([0 .06])
+ylim([0 .02])   % set to match the published panel (Fig 5E right axis, 0-0.02 uM)
 xlim([0 480])
 title(tit2(i))
 
@@ -135,3 +166,18 @@ title("TLR 9")
 end
 legend(tit2)
 
+%% Figure 5C: TLR9 levels in naive BMDMs (flow cytometry) and Gamma fit
+% Sample 6 (TLR9-APC, fixed + permeabilized), "Single Cells" gate exported from FlowJo/FACSDiva:
+% data/flow/export_Sample_6_TLR9_Fix+Perm_Single Cells.csv (raw .fcs files in data/flow/fcs).
+% Fit as in the original analysis: fitdist(...,"Gamma") on the positive APC intensities.
+flowFile = 'data/flow/export_Sample_6_TLR9_Fix+Perm_Single Cells.csv';   % relative to the main code folder
+receptordist = readtable(flowFile);
+receptordist = table2array(receptordist(:,7));        % column 7 = 640nm_670/30_APC-A (TLR9)
+receptordist = receptordist(receptordist > 0);
+pd = fitdist(receptordist,"Gamma");
+fprintf("Figure 5C: n = %d cells, Gamma shape a = %.2f, scale b = %.0f\n", numel(receptordist), pd.a, pd.b);
+figure("Name","Figure 5C")
+histogram(receptordist,'Normalization','pdf','FaceColor',[0.98 0.6 0.6]); hold on
+x=0:10:2e4; plot(x,pdf(pd,x),"LineWidth",2,"Color","b"); hold off
+xlim([0 2e4]); xlabel("Receptor Level"); ylabel("Probability"); title("TLR9 distribution")
+text(0.55*2e4,0.9*max(pdf(pd,x)),sprintf("\\Gamma(%.1f,%.0f)",pd.a,pd.b))

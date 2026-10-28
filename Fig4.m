@@ -1,470 +1,105 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Figure 4 related to 
+% Figure 4 related to
 % Encoding innate immune memory in single macrophages through cell intrinsic and paracrine feedback
 %
 % Wang AG, Mercado Vasquez JG, Son M, et al
 %
 % Corresponding author: tays@uchicago.edu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TNFblock PIC features
-clc
-clear
-load("./single_cell_features/peakfeatures_PICfirst_TNFblock.mat")
+% Cytokine blocking experiments (Figure 4D-I). Figure 4A-C and 4J are RNA-seq analyses (R/Fig4_RNAseq.R).
+% Single-cell data: table data4 (one row per cell and phase), built by functions/genBlockFeat.m.
+% AUCs are normalized to the mean of the control in each replicate. Black line: mean.
+% Statistics: two-sided Wilcoxon rank-sum test, Bonferroni-corrected within each panel.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Load data
+addpath functions simulation_results classifier_results data/flow   % run from the main code folder: all paths are relative to the current folder
+if ~isfile("single_cell_features/genBlockFeat.mat"), genBlockFeat; end
+load single_cell_features/genBlockFeat.mat data4
+groupcounts(data4,["Experiment","Category","Phase"])   %number of cells per condition and phase
 
-%Feature 2-5 = Stim A max, width, AUC, and late AUC
-%Feature 7-10 = Stim B max, AUC, early AUC, and late AUC
-feature = 8;
+red=[0.62 0.13 0.13; 0.98 0.5 0.45]; blue=[0.20 0.40 0.73; 0.65 0.82 1]; gry=[0.5 0.5 0.5];
 
-%6 and 4 for TNF, 7 and 5 for LPS
-conditions = peakfeatures_PICfirst_TNFblock( ([peakfeatures_PICfirst_TNFblock{:, 12}] == 6 )', 11:15);
-conditions = [conditions; peakfeatures_PICfirst_TNFblock( ([peakfeatures_PICfirst_TNFblock{:, 12}] == 4 )', 11:15)];
-conditions = cell2mat(conditions);
-%For PIC
-inputs = [17, 19, 17, 19, 17, 19; 0, 1, 0, 1, 0, 1; 2, 3, 2, 3, 0, 1; 4, 5, 4, 5, 0, 1 ];
+countlabels(data4.Category)
+%% Fig 4D
+%Tracemaps of the phase I response with or without sTNFR1 (100 random cells, earliest responders at the top)
+ex=["sTNFR1 (polyI:C)","sTNFR1 (polyI:C)","sTNFR1 (CpG)","sTNFR1 (CpG)"];
+cats=["PolyIC -> TNF","PolyIC + sTNFR1 -> TNF","CpG -> LPS","CpG + sTNFR1 -> LPS"];
+figure("Position",[50 50 900 400])
+for i=1:4
+    if mod(i,2)==1, rng(12), end        %same random cells as the original analysis
+    zz=data4.Experiment==ex(i) & data4.Category==cats(i) & data4.Phase==1;
+    nfkb=data4.NfkB(zz,:);
+    nfkb=nfkb(datasample(1:size(nfkb,1),100,'Replace',false),:);
+    auc=trapz(nfkb(:,1:10),2);
+    [~,idx]=sort(auc,"descend");
 
-
-maxnorms = [mean(cell2mat( peakfeatures_PICfirst_TNFblock(ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 17 & conditions(:, 4) == 1, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_PICfirst_TNFblock(ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 19 & conditions(:, 4) == 1, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_PICfirst_TNFblock(ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 17 & conditions(:, 4) == 2, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_PICfirst_TNFblock(ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 19 & conditions(:, 4) == 2, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_PICfirst_TNFblock(ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 17 & conditions(:, 4) == 3, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_PICfirst_TNFblock(ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 19 & conditions(:, 4) == 3, 5) ), feature) ))];
-
-figure(3) %plotting TNFblock effects
-alltraces = {};
-clf
-%For PIC
-cond = conditions(ismember( conditions(:, 1), inputs(3, :)), :);
-for bb = 1:2
-    temp = [];
-    for cc = 1:3
-        temp1 = cell2mat(  peakfeatures_PICfirst_TNFblock( ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), cond(cond(:, 1) == inputs(3, bb+(cc-1)*2) & cond(:, 4) == cc, 5) ), feature) ) ;
-        %Norm to no block PIC
-        temp1 =  temp1./mean(cell2mat( peakfeatures_PICfirst_TNFblock(ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), cond(cond(:, 1) == inputs(3, 1+(cc-1)*2) & cond(:, 4) == cc, 5) ), feature) ));
-        temp = [temp;temp1];
-    end
-    length(temp)
-    Violin( max( temp, 0), bb, 'Bandwidth', 0.3,  'MedianColor', [1,1,1], 'ViolinColor', [0 0 0], 'ViolinAlpha', .3, 'BoxColor',[0 0 0], 'ShowData', false, 'Width', .32, ...
-        'BoxWidth', 0.1, 'ShowMean', true);
-    alltraces{2, bb} = max( temp, 0);
+    subplot(1,4,i)
+    imagesc(0:6:234,1:100,nfkb(idx,:),[0 5])
+    xlabel("Time (min)")
+    yticks([])
+    title(cats(i))
 end
-set(gca, 'XLim', [0.25, 2.75], 'YLim', [-0.5, 4])
-title( inputs(2, 1) );
-xticks([1 2])
-xticklabels({'Con','Blk'})
-ylabel('S2 LPS AUC')
+colorbar
 
-%% TNFblock PIC tracemap
-rng(12)
-load("./single_cell_features/peakfeatures_PICfirst_TNFblock.mat")
-feature = 1; %feature 1 is PIC stimulus traces, feature 6 is TNF stimulus traces
-conditions = peakfeatures_PICfirst_TNFblock( ([peakfeatures_PICfirst_TNFblock{:, 12}] == 6 )', 11:15);
-conditions = [conditions; peakfeatures_PICfirst_TNFblock( ([peakfeatures_PICfirst_TNFblock{:, 12}] == 4 )', 11:15)];
-conditions = cell2mat(conditions);
-inputs = [17, 19, 17, 19, 17, 19; 0, 1, 0, 1, 0, 1; 2, 3, 2, 3, 0, 1; 4, 5, 4, 5, 0, 1, ];
+%% Fig 4E-G
+%Violin plots of the normalized AUC, control vs block
+% {experiment, phase, feature, y label, colors, x labels}
+pan={ {"sTNFR1 (CpG)",1,"Late AUC norm","CpG Late AUC",red,["Con","Blk"]}, {"sTNFR1 (polyI:C)",1,"Late AUC norm","PIC Late AUC",blue,["Con","Blk"]}, ... %Fig 4E
+      {"sTNFR1 (CpG)",2,"AUC norm","LPS AUC",red,["Con","Blk"]},           {"sTNFR1 (polyI:C)",2,"AUC norm","TNF AUC",blue,["Con","Blk"]}, ...      %Fig 4F
+      {"sIL10R",2,"AUC norm","LPS AUC",red,["CpG","CpG + IL-10 block"]} };                                                                        %Fig 4G
+figure("Position",[50 50 1100 650])
+fprintf('\nPanel   n (control, block)   p (two-sided rank-sum)\n')
 
-figure(3) %plotting TNFblock effects
-ylim1 = [0 3];
-
-clf
-counter = 1;
-
-cond = conditions(ismember( conditions(:, 1), inputs(3, :)), :);
-for bb = 1:2
-    temp = [];
-    tempt = [];
-    for cc = 1:3
-        temp1 = cell2mat(  peakfeatures_PICfirst_TNFblock( ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), cond(cond(:, 1) == inputs(3, bb+(cc-1)*2) & cond(:, 4) == cc, 5) ), feature) ) ;
-        tempt1 = cell2mat(  peakfeatures_PICfirst_TNFblock( ismember( cell2mat( peakfeatures_PICfirst_TNFblock(:, 15) ), cond(cond(:, 1) == inputs(3, bb+(cc-1)*2) & cond(:, 4) == cc, 5) ), 7) ); %3 by peak time for first interval, 7 by max
-        temp = [temp;temp1];
-        tempt = [tempt;tempt1];
-    end
-    [nr, ~] = size(temp);
-    rows = datasample(1:nr, 100, 'replace', false);
-    traces = temp(rows, 1:40);
-    tracest = tempt(rows);
-
-    [tracest,sortIdx]  = sort(tracest,'descend'); %ascend for time in PIC, descend for peak height in TNF
-    subplot(1,2, counter)
-
-    imagesc(traces(sortIdx, :), ylim1)
-    length(temp)
-    counter = counter + 1;
-    axis off
-    if bb == 1
-        title("Control")
-    else
-        title("TNF block")
-    end
-
-end
-
-
-%% TNFblock CpG features
-clc
-clear
-load("./single_cell_features/peakfeatures_CPGfirst_TNFblock.mat")
-
-%Feature 2-5 = Stim A max, width, AUC, and late AUC
-%Feature 7-10 = Stim B max, AUC, early AUC, and late AUC
-feature = 8;
-
-%6 and 4 for TNF, 7 and 5 for LPS
-conditions = peakfeatures_CPGfirst_TNFblock( ([peakfeatures_CPGfirst_TNFblock{:, 12}] == 6 )', 11:15);
-conditions = [conditions; peakfeatures_CPGfirst_TNFblock( ([peakfeatures_CPGfirst_TNFblock{:, 12}] == 4 )', 11:15)];
-conditions = cell2mat(conditions);
-
-%For CpG
-inputs = [17, 19, 17, 19; 2, 3, 3, 4];
-maxnorms = [mean(cell2mat( peakfeatures_CPGfirst_TNFblock(ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 17 & conditions(:, 4) == 1, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_TNFblock(ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 19 & conditions(:, 4) == 1, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_TNFblock(ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 17 & conditions(:, 4) == 2, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_TNFblock(ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 19 & conditions(:, 4) == 2, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_TNFblock(ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 17 & conditions(:, 4) == 3, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_TNFblock(ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), conditions(conditions(:, 1) == 19 & conditions(:, 4) == 3, 5) ), feature) ))];
-
-figure(3) %plotting TNFblock effects
-clf
-hold on
-cond = conditions(ismember( conditions(:, 1), inputs(2, :)), :);
-for bb = 1:2
-    temp = [];
-    for cc = 1:2
-        temp1 = cell2mat(  peakfeatures_CPGfirst_TNFblock( ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), cond(cond(:, 1) == inputs(2, bb+(cc-1)*2) & cond(:, 4) == cc, 5) ), feature) ) ;
-        %Norm to no block PIC
-        temp1 =  temp1./mean(cell2mat( peakfeatures_CPGfirst_TNFblock(ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), cond(cond(:, 1) == inputs(2, 1+(cc-1)*2) & cond(:, 4) == cc, 5) ), feature) ));
-        temp = [temp;temp1];
-    end
-    length(temp)
-    if bb == 1
-        tempcon = temp;
-    else
-        tempblk = temp;
-    end
-    Violin( max( temp, 0), bb, 'Bandwidth', 0.3,  'MedianColor', [1,1,1], 'ViolinColor', [0 0 0], 'ViolinAlpha', .3, 'BoxColor',[0 0 0], 'ShowData', false, 'Width', .32, ...
-        'BoxWidth', 0.1, 'ShowMean', true);
-    alltraces{2, bb} = max( temp, 0);
-end
-set(gca, 'XLim', [0.25, 2.75], 'YLim', [-0.5, 4])
-title( inputs(2, 1) );
-xticks([1 2])
-xticklabels({'Con','Blk'})
-ylabel('S2 LPS AUC')
-
-%% TNFblock CpG heatmap
-clc
-clear
-rng(12)
-load("./single_cell_features/peakfeatures_CPGfirst_TNFblock.mat")
-
-feature = 6; %1 for CpG, 6 for LPS
-conditions = peakfeatures_CPGfirst_TNFblock( ([peakfeatures_CPGfirst_TNFblock{:, 12}] == 7 )', 11:15);
-conditions = [conditions; peakfeatures_CPGfirst_TNFblock( ([peakfeatures_CPGfirst_TNFblock{:, 12}] == 4 )', 11:15)];
-conditions = cell2mat(conditions);
-%For CpG
-inputs = [17, 19, 17, 19; 2, 3, 3, 4];
-
-figure(3) %plotting TNFblock effects
-ylim1 = [0 3];
-clf
-counter = 1;
-cond = conditions(ismember( conditions(:, 1), inputs(2, :)), :);
-for bb = 1:2
-    temp = [];
-    tempt = [];
-    for cc = 1:2
-        temp1 = cell2mat(  peakfeatures_CPGfirst_TNFblock( ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), cond(cond(:, 1) == inputs(2, bb+(cc-1)*2) & cond(:, 4) == cc, 5) ), feature) ) ;
-        tempt1 = cell2mat(  peakfeatures_CPGfirst_TNFblock( ismember( cell2mat( peakfeatures_CPGfirst_TNFblock(:, 15) ), cond(cond(:, 1) == inputs(2, bb+(cc-1)*2) & cond(:, 4) == cc, 5) ), 7) ); %3 for time for CpG, 7 for peak height for LPS
-        temp = [temp;temp1];
-        tempt = [tempt;tempt1];
-    end
-    [nr, ~] = size(temp);
-    rows = datasample(1:nr, 100, 'replace', false);
-    traces = temp(rows, 1:40);
-    tracest = tempt(rows);
-
-    [tracest,sortIdx]  = sort(tracest,'descend'); %ascend for cpg, descend for LPS
-    subplot(1,2, counter)
-    imagesc(traces(sortIdx, :), ylim1)
-    length(temp)
-    counter = counter + 1;
-    axis off
-    if bb == 1
-        title("Control")
-    else
-        title("TNF block")
-    end
-
-end
-
-%% IL10block CpG features
-clc
-clear
-
-load("./single_cell_features/peakfeatures_CPGfirst_IL10block.mat")
-
-%Feature 2-5 = Stim A max, width, AUC, and late AUC
-%Feature 7-10 = Stim B max, AUC, early AUC, and late AUC
-feature = 8;
-
-%6 and 4 for TNF, 7 and 5 for LPS
-conditions = peakfeatures_CPGfirst_IL10block( ([peakfeatures_CPGfirst_IL10block{:, 12}] == 6 )', 11:15);
-conditions = [conditions; peakfeatures_CPGfirst_IL10block( ([peakfeatures_CPGfirst_IL10block{:, 12}] == 4 )', 11:15)];
-conditions = cell2mat(conditions);
-%For CpG
-inputs = [17, 19, 17, 19; 3, 21, 2, 7];
-
-maxnorms = [mean(cell2mat( peakfeatures_CPGfirst_IL10block(ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), conditions(conditions(:, 1) == 17 & conditions(:, 4) == 1, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_IL10block(ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), conditions(conditions(:, 1) == 19 & conditions(:, 4) == 1, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_IL10block(ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), conditions(conditions(:, 1) == 17 & conditions(:, 4) == 2, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_IL10block(ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), conditions(conditions(:, 1) == 19 & conditions(:, 4) == 2, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_IL10block(ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), conditions(conditions(:, 1) == 17 & conditions(:, 4) == 3, 5) ), feature) )), ...
-    mean(cell2mat( peakfeatures_CPGfirst_IL10block(ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), conditions(conditions(:, 1) == 19 & conditions(:, 4) == 3, 5) ), feature) ))];
-
-figure(3) %plotting IL10block effects
-clf
-%For CpG
-    hold on
-    cond = conditions(ismember( conditions(:, 1), inputs(2, :)), :);
-        for bb = 1:2
-            temp = [];
-            for cc = 1:2
-                temp1 = cell2mat(  peakfeatures_CPGfirst_IL10block( ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), cond(cond(:, 1) == inputs(2, bb+(cc-1)*2) & cond(:, 4) == cc, 5) ), feature) ) ;
-
-                %Norm to no block PIC
-                temp1 =  temp1./mean(cell2mat( peakfeatures_CPGfirst_IL10block(ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), cond(cond(:, 1) == inputs(2, 1+(cc-1)*2) & cond(:, 4) == cc, 5) ), feature) ));
-                temp = [temp;temp1];
-            end
-            length(temp)
-            if bb == 1
-                tempcon = temp;
-            else
-                tempblk = temp;
-            end
-            Violin( max( temp, 0), bb, 'Bandwidth', 0.3,  'MedianColor', [1,1,1], 'ViolinColor', [0 0 0], 'ViolinAlpha', .3, 'BoxColor',[0 0 0], 'ShowData', false, 'Width', .32, ...
-                'BoxWidth', 0.1, 'ShowMean', true);
-            alltraces{2, bb} = max( temp, 0);
-        end
-        set(gca, 'XLim', [0.25, 2.75], 'YLim', [-0.5, 4])
-        xticks([1 2])
-        xticklabels({'Con','Blk'})
-        ylabel('S2 TNF AUC')
-%% IL10block CpG heatmap
-clc
-clear
-rng(9)
-load("./single_cell_features/peakfeatures_CPGfirst_IL10block.mat")
-
-feature = 6; %1 for CpG, 6 for LPS
-%6 and 4 for TNF, 7 and 5 for LPS
-conditions = peakfeatures_CPGfirst_IL10block( ([peakfeatures_CPGfirst_IL10block{:, 12}] == 7 )', 11:15);
-conditions = [conditions; peakfeatures_CPGfirst_IL10block( ([peakfeatures_CPGfirst_IL10block{:, 12}] == 5 )', 11:15)];
-conditions = cell2mat(conditions);
-%For CpG
-inputs = [17, 19, 17, 19; 3, 21, 2, 7];
-
-figure(3) %plotting TNFblock effects
-ylim1 = [0 4];
-clf
-counter = 1;
-cond = conditions(ismember( conditions(:, 1), inputs(2, :)), :);
-for bb = 1:2
-    temp = [];
-    tempt = [];
-    for cc = 1:2
-        temp1 = cell2mat(  peakfeatures_CPGfirst_IL10block( ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), cond(cond(:, 1) == inputs(2, bb+(cc-1)*2) & cond(:, 4) == cc, 5) ), feature) ) ;
-        tempt1 = cell2mat(  peakfeatures_CPGfirst_IL10block( ismember( cell2mat( peakfeatures_CPGfirst_IL10block(:, 15) ), cond(cond(:, 1) == inputs(2, bb+(cc-1)*2) & cond(:, 4) == cc, 5) ), 7) ); %2 for peak height for CpG, 7 for peak height for LPS
-        temp = [temp;temp1];
-        tempt = [tempt;tempt1];
-    end
-    [nr, ~] = size(temp);
-    rows = datasample(1:nr, 100, 'replace', false);
-    traces = temp(rows, 1:40);
-    tracest = tempt(rows);
-
-    [tracest,sortIdx]  = sort(tracest,'descend'); %ascend for cpg, descend for LPS
-    subplot(1,2, counter)
-    imagesc(traces(sortIdx, :), ylim1)
-    length(temp)
-    counter = counter + 1;
-    axis off
-    if bb == 1
-        title("Control")
-    else
-        title("IL10 block")
-    end
-
-end
-%% CPG and PIC IFN block
-clc
-clear
-colormap parula
-load("./single_cell_features/peakfeatures_IFNblock.mat")
-rng(16)
-
-peakfeatures_IFNblock = peakfeatures_IFNblock([1:62, 64], :);
-
-lig1 = [1, 4];  %0/3 are CpG 100 nm, 1/4 are PIC 300 ng, 2/5 are PIC 1000 ng
-lig2 = 6; %6 is 10ng TNF, 7 is 1 ng LPS
-conditions = peakfeatures_IFNblock( :, 15);
-conditions = cell2mat(conditions);
-
-
-figure(1)
-clf
-norm2 = [];
-for aa = 1:2
-    conditions = 1:63;
-    %conditions = cell2mat(conditions);
-    conditions = conditions(cell2mat( peakfeatures_IFNblock(conditions, 11) ) == lig1(aa) & cell2mat( peakfeatures_IFNblock(conditions, 12)) == lig2);
-    temp1 = [];
-    temp2 = [];
-
-    for bb = 1:length(conditions) %1:length(conditions)/2 %1:length(conditions) %1:length(conditions)/2 %(length(conditions)/2+1):length(conditions) 
-        temp1 = [temp1; peakfeatures_IFNblock{conditions(bb), 1} ];
-        temp2 = [temp2; peakfeatures_IFNblock{conditions(bb), 6} ];
-                
-    end
-    temp1 = datasample(temp1, 600, 1, 'Replace', false);
-    temp2 = datasample(temp2, 600, 1, 'Replace', false);
-    %temp1 = datasample(temp1,  200,'Replace', false);
-    maxes1 = max(temp1(:, 1:40), [], 2);
-    norm1 = mean(maxes1);
-    [~, idx1] = sort(maxes1, 'descend');    
+for i=1:5
+    p=pan{i};
+    zz=data4.Experiment==p{1} & data4.Phase==p{2};
+    g=unique(data4.Category(zz),'stable');                 %control first, block second
+    v={data4.(p{3})(zz & data4.Category==g(1)), data4.(p{3})(zz & data4.Category==g(2))};
     
-    %temp2 = datasample(temp2,  200,'Replace', false);
-    maxes2 = max(temp2(:, 1:40), [], 2);
-    if aa == 1
-        norm2 = mean(maxes2);
-    end
-
-    [~, idx2] = sort(maxes2, 'descend');
-
-    subplot(2,2,aa*2-1)
-    imagesc(temp1(idx1, :)./norm1, [0 1.5])
-
-    subplot(2,2,aa*2)
-    imagesc(temp2(idx2, :)./norm2, [0 1.5])
-
+    subplot(2,4,i)
+    violin3({max(v{1},0),max(v{2},0)},'facecolor',p{5},'mc','k','medc',[],'bw',0.3);
+    pv=ranksum(v{1},v{2});
+    addStar(1,2,4.2,pv)
+    xticks([1 2])
+    xticklabels(p{6})
+    ylabel(p{4})
+    ylim([0 4.6])
+    set(gca,'FontSize',8)
+    fprintf('%-24s %4d, %4d   %.2g\n',p{1}+" "+p{4},numel(v{1}),numel(v{2}),pv)
 end
 
-figure(2)
-clf
-for aa = 1:2
-    subplot(1,2, aa)
-    hold on
-    for bb = 1:2
-        conditions = 1:63;
-        conditions = conditions(cell2mat( peakfeatures_IFNblock(conditions, 11) ) == lig1(bb) & cell2mat( peakfeatures_IFNblock(conditions, 12)) == lig2);
-        temp1 = [];
-        temp2 = [];
-
-        for cc = 1:length(conditions) 
-            temp1 = [temp1; peakfeatures_IFNblock{conditions(cc), 1} ];
-            temp2 = [temp2; peakfeatures_IFNblock{conditions(cc), 6} ];
-        end
-        if aa == 1
-            plot(smoothdata(median(temp1, 1),"movmean",4), 'LineWidth', 2)
-        else
-            plot(smoothdata(median(temp2, 1),"movmean",4), 'LineWidth', 2)
-        end
-                
+%% Fig 4H-I
+%Naive, polyI:C and polyI:C + sIFNAR1 followed by TNF (H: AUC, I: late AUC), Bonferroni x3
+cats=["Control -> TNF","PolyIC 1000 -> TNF","PolyIC 1000 + sIFNAR1 -> TNF"];
+feat=["AUC norm","Late AUC norm"]; ylb=["TNF-\alpha AUC","TNF-\alpha late AUC"];
+pairs=[1 2; 2 3; 1 3];
+shown={[1 2 3],[2 3]};                                   %comparisons drawn in Fig 4H and 4I
+for j=1:2
+    v=cell(1,3);
+    for k=1:3
+        zz=data4.Experiment=="sIFNAR1" & data4.Category==cats(k) & data4.Phase==2;
+        v{k}=rmmissing(data4.(feat(j))(zz));
     end
-    %set(gca, 'XLim', [0, 40], "YLim", [-0.1, 1.6]);
-    hold off
 
-    
+    subplot(2,4,5+j)
+    violin3(cellfun(@(x) max(x,0),v,'UniformOutput',false),'facecolor',[gry;blue],'mc','k','medc',[],'bw',0.2);
+    for q=1:3
+        pv=min(1,3*ranksum(v{pairs(q,1)},v{pairs(q,2)}));
+        if ismember(q,shown{j}), addStar(pairs(q,1),pairs(q,2),3.9+0.35*(q-1),pv), end
+        fprintf('%-24s %4d, %4d   %.2g (Bonferroni x3)\n',cats(pairs(q,1))+" vs "+cats(pairs(q,2)),numel(v{pairs(q,1)}),numel(v{pairs(q,2)}),pv)
+    end
+    xticks(1:3)
+    xticklabels(["Naive","PolyI:C","PolyI:C + IFN block"])
+    xtickangle(30)
+    ylabel(ylb(j))
+    ylim([0 4.9])
+    set(gca,'FontSize',8)
 end
 
-%% Second ligand features
-
-lig1 = [16, 17, 2, 5]; %0/3 are CpG 100 nm, 1/4 are PIC 300 ng, 2/5 are PIC 1000 ng
-lig2 = 6; %6 is 10ng TNF, 7 is 1 ng LPS
-feature1 = 4;
-feature2 = 10;
-
-figure(2)
-clf
-for cc = 1:2
-    subplot(1, 2, cc)
-    hold on
-    if cc == 1
-
-        for aa = 1:4
-            pos = [1, 2, 3, 4];
-            conditions = 1:63;
-            %conditions = cell2mat(conditions);
-            conditions = conditions(cell2mat( peakfeatures_IFNblock(conditions, 11) ) == lig1(aa) & cell2mat( peakfeatures_IFNblock(conditions, 12)) == lig2);
-            temp1 = [];
-            temp2 = [];
-
-
-
-            for bb = 1:length(conditions)
-                temp1 = [temp1; peakfeatures_IFNblock{cell2mat( peakfeatures_IFNblock(:, 15) ) == conditions(bb), feature1} ];
-
-            end
-            temp1 = max(temp1, 0);
-            if aa == 1
-                set1 = temp1;
-            elseif aa ==2
-                set2 = temp1;
-            elseif aa ==3
-                set3 = temp1;
-            else
-                set4 = temp1;
-            end
-
-
-            Violin( temp1, pos(aa), 'Bandwidth', 4,  'MedianColor', [1,1,1], 'ViolinAlpha', .5, 'BoxColor',[0 0 0], 'ShowData', false, 'Width', .32, ...
-                'BoxWidth', 0.1, 'ShowMean', true);
-        end
-        set(gca, 'XLim', [0.5, 4.5], "YLim", [-1, 150]);
-        hold off
-    else
-        for aa = 1:4
-            pos = [1, 2, 3, 4];
-            conditions = 1:63;
-            %conditions = cell2mat(conditions);
-            conditions = conditions(cell2mat( peakfeatures_IFNblock(conditions, 11) ) == lig1(aa) & cell2mat( peakfeatures_IFNblock(conditions, 12)) == lig2);
-            temp1 = [];
-            temp2 = [];
-
-            for bb = 1:length(conditions) % length(conditions) %/2 gets only first replicate
-                foo = peakfeatures_IFNblock{conditions(bb), feature2};
-                temp2 = [temp2; foo(~isnan(foo)) ];
-
-            end
-
-            if aa == 1
-                normauc2 = mean(temp2);
-            end
-            temp2 = temp2./normauc2;
-%             if aa == 1
-%                 normauc2 = mean(temp2);
-%             elseif aa == 2
-%                 ifnarauc2 = mean(temp2);
-%             end
-%             if aa == 1 || aa == 3
-%                 temp2 = temp2./normauc2;
-%             else
-%                 temp2 = temp2./ifnarauc2;
-%             end
-            if aa == 1
-                set5 = temp2;
-            elseif aa ==2
-                set6 = temp2;
-            elseif aa ==3
-                set7 = temp2;
-            else
-                set8 = temp2;
-            end
-            
-            Violin( temp2, pos(aa), 'Bandwidth', 0.2,  'MedianColor', [1,1,1], 'ViolinAlpha', .5, 'BoxColor',[0 0 0], 'ShowData', false, 'Width', .32, ...
-                'BoxWidth', 0.1, 'ShowMean', true);
-            set(gca, 'XLim', [0.5, 4.5], "YLim", [-0.1, 5]);
-            xticks([1 2 3 4 5]);
-        end
-    end
-    hold off
+%%
+function addStar(a,b,y,p)
+%Comparison bar with * (p < 0.01) or n.s.
+line([a b],[y y],'Color','k')
+if p<0.01, s="*"; else, s="n.s."; end
+text((a+b)/2,y+0.12,s,'HorizontalAlignment','center','FontSize',8)
 end
