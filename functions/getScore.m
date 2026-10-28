@@ -1,7 +1,8 @@
-function [Model,tit]=getScore(Ms1,Ms2,pp,tt,nj,dt,tspan)
-Par=Params;
-M=Par(32);
-
+% Runs the single-cell simulations for each stimulation protocol and (pp>0) plots tracemaps/traces. Used by Fig5-7.
+% Source: NFkB Project Andrew\Simulation\20260414 (Apr 2026); copied 2026-10-18 without code changes.
+function [Model,tit]=getScore(Ms,pp,tt,nj,dt,tspan,yin,Par,M)
+        figure("Position",[2000 20 1500 1200])
+        % [~, ~, ~, ~, ~, ~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,tlIFN,tlTnf] = Params;
 %%TNF
 w=55000;                    %Molecular weight g/mol
 ConDose=10;                 %Concentration 10 ng/ml
@@ -37,19 +38,19 @@ flag(1:13)=1;
 flag(14:26)=0;
 
 %%Autocrine IFN   1 2 3 4 5 6 7 8 9 10 11 12 13
-scIFN =  Par(20)*[ 0 0 0 1 0 1 1 1 0 0  0  1  1   ...   %%PIC
+scIFN =  Par(1)*[ 0 0 0 1 0 1 1 1 0 0  0  1  1   ...   %%PIC
                   0 0 0 1 0 1 1 1 0 0  0  1  1];          %%CPG
 
 %%Paracrine IFN   1 2 3 4 5 6 7 8 9 10 11 12 13
-IFNext = Par(16)*[0 0 0 0 1 1 1 1 0 0  0  1  1 ...        %%PIC
+IFNext = .5*[0 0 0 0 1 1 1 1 0 0  0  1  1 ...        %%PIC
                   0 0 0 0 1 1 1 1 0 0  0  1  1 ];          %%CPG
 
 %%Autocrine TNF   1 2 3 4 5 6 7 8 9 10 11 12 13
-scTNF =  Par(19)*[0 0 0 0 0 0 1 0 1 1  1  1  1 ...        %%PIC
+scTNF =  Par(2)*[0 0 0 0 0 0 1 0 1 1  1  1  1 ...        %%PIC
                   0 0 0 0 0 0 1 0 1 1  1  1  1 ];          %%CPG
 
 %%Paracrine TNF   1 2 3 4 5 6 7 8 9 10 11 12 13
-TNFext=  Par(16)*[0 0 0 0 0 0 0 1 0 1  0  1  1 ...    %%PIC
+TNFext=  .5*[0 0 0 0 0 0 0 1 0 1  0  1  1 ...    %%PIC
                   0 0 0 0 0 0 0 1 0 1  0  1  1 ];      %%CPG
 
 %%First Challenge 1 2 3 4 5 6 7 8 9 10 11 12 13
@@ -86,43 +87,31 @@ for i=1:nn
 
     TT=[];
 
-    Par(20)=scIFN(i);
-    Par(19)=scTNF(i);
+    Par(1)=scIFN(i);
+    Par(2)=scTNF(i);
 
     parfor j=1:nj
-        M1=Ms1(j);        %TLR3 Receptors
-        M2=Ms2(j);        %TLR9 Receptors
-        M3=M;             %IFN Receptors
-        y0=zeros(23,1);
+    y0=yin;
+    M2=Ms(j);        %TLR3,TLR9 Receptors
 
-y0(1) = M;   %Receptors TNF
-y0(2) = M;   %Receptors LPS
+    y0(19)=flag(i)*Lc(i);
+    y0(20)=(1-flag(i))*Lc(i);
 
-y0(13) = 0;   %Nuclear NFkB
-y0(14) = 0;  %mRNA of target gene (uM)
-y0(15) = 0.0001;   %Free Ikba (uM)
-y0(16) = 0.0001;   %A20 (uM)
-y0(17) = 0;    %Ligand TNF
-y0(18) = 0;    %Ligand LPS
-y0(19) = 0;    %Ligand PolyIC
-y0(20) = 0;    %Ligand CpG
-y0(21) = 0;    %Ligand IFNg
+    T=0;
+    YY=y0';
 
-y0(19)=flag(i)*Lc(i);
-y0(20)=(1-flag(i))*Lc(i);
+    [t, y] = ode23tb(@(t,y) TNF_Model_2(t,y,dt,Par,M,M2,IFNext(i)*infExt,TNFext(i)*tnfExt), tspan, y0);
+    T=[T; t];
+    YY=[YY; y];
 
-    [t, y] = ode23tb(@(t,y) TNF_Model(t,y,dt,Par,M1,M2,M3,IFNext(i)*infExt,TNFext(i)*tnfExt), tspan, y0);
-    T=t;
-    YY=y;
-  
     y0=y(end,:);
-    if i~=2 && i~=13 && i~=15 && i~=26
     y0(17:20)=0;
+    if i~=2 && i~=13 && i~=15 && i~=26
     y0(17)=flag(i)*MLigandTNF;
     y0(18)=(1-flag(i))*MLigandLPS;
     end
 
-    [t, y] = ode23tb(@(t,y) TNF_Model(t,y,dt,Par,M1,M2,M3,infExt*0,tnfExt*0), tspan, y0);
+    [t, y] = ode23tb(@(t,y) TNF_Model_2(t,y,dt,Par,M,M2,0*infExt,0*tnfExt),tspan, y0);
     T=[T; t+T(end)];
     YY=[YY; y];
 

@@ -62,7 +62,7 @@ T=renamevars(T,"Var1","Activation");
 ds = arrayDatastore(T,"OutputType","same");
 
 actid=readall(ds,"UseParallel",true).id';
-features=transform(ds,@(x) extract(x,threshActivation));
+features=transform(ds,@(x) extractFeatures(x,threshActivation));
 data=readall(features,"UseParallel",true);
 actioncats = categorical(gname)';
 data.Category = actioncats(actid);

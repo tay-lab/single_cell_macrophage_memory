@@ -1,4 +1,6 @@
-function [accuracy,weights]=randomModel(data,k)
+% Weighted random classifier (Figure S3B-C, S3E-F). Extra outputs f1_score and Cs (per-fold F1 and confusion
+% matrices) are returned so Figure S3 can be redrawn from saved results (FigS3.m).
+function [accuracy,weights,f1_score,Cs]=randomModel(data,k)
 rng default;  % Set global seed (optional, for reproducibility outside parfor)
 stream = RandStream('CombRecursive', 'Seed', 1);
 

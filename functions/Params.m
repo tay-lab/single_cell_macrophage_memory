@@ -1,43 +1,59 @@
-function Par = Params
+% Model parameters (Methods, Table 1). Used by TNF_Model_2.
+% Source: NFkB Project Andrew\Simulation\20260414 (Apr 2026); copied 2026-10-18 without code changes.
+function [knin, Nt, Ki, klin, Kn, kt,gamma,ktl,a,ka20,IKKt,Tdeg,Kca,kb,kd,ka,ki,kp,n1,n2,kdeg,ik_kr,ik_ks,kb3,kb4] = Params
 
-Par(1) =.1;         %k1b Receptor Activation 1
-Par(2) =.001;       %k2b Receptor Activation 2
-Par(3) =.0001;      %k3b Receptor Activation 3
-Par(4) =.001;       %kd  Receptor Inactivation
+% Tdeg=[2*10^-4,7*10^-4,7.7*10^-4,8.3*10^-4]; % TNF loss  
+Tdeg=2*10^-4; % TNF loss     
 
-Par(5)=5*10^-5;     %kr Adaptor activation 
-Par(6)=.01;         %ks Adaptor inactivation 
-Par(7)=.0002;       %ka IKK neutral->active 
-Par(8)=.0005;       %ki IKK active->inactive 
-Par(9)=.002;        %kp IKK inactive->neutral
+knin = .01; %1/s Tay
+klin = .05; %1/s Tay
+Nt = 1; %uM Jensen
+Ki = 0.035; %uM Jensen
+Kn = 0.029; %uM Jensen
+kt = 1.4*10^-7; %1/uM 1/s Ashall
+gamma = 0.0063;%1/s Fitted
+ktl = 0.5; %1/s Tay
+a = 0.0175; %1/uM 1/s Jensen
+ka20 = 0.0018; %uM Ashall
+IKKt = 2; %uM Jensen
+Kca=1;      %uM Assumed
 
-Par(10) = .01;         %NFkB, STAT nuclear import
-Par(11) = .05;         %NFkB, STAT nuclear export
-Par(12) = .0001;       %IRF nuclear import
-Par(13) = .0005;       %IRF nuclear export
+kb=.1;      %Assumed
+kd=0.001;   %Assumed
 
-Par(14)= 1.4*10^-7;    %kt Transcription rate
-Par(15)=.004;          %gamma mRNA degradation      
-Par(16)=.5;            %ktl Translation rate      
-Par(17)=1*10^-5;       %NFB degradation
-Par(18)=0.00175;       %IkBa degradation
+ka = 0.004; %1/min  Ashall
+ki = 0.003; %1/min  Ashall
+kp = 0.0006; %1/min  Ashall
 
-Par(19)=.001;          %sc TNF translation
-Par(20)=5*10^-5;       %sc IFN translation
-Par(21)=150;           %TNFR translation
+kdeg=0.00012; %1/s Fitted
 
-Par(22)=2*10^-4;       %Ligand Degradation
+ik_kr=0.00002;  %1/s Tay
+ik_ks=0.01;     %1/s Tay
 
-Par(23)=0.018;         %Coefficient ka20 in hill function
-Par(24)=1;             %Coefficient Kca in hill function              
-Par(25)=2;             %Total IKK
-Par(26)=0.029;         %Coefficient Kn in hill function
-Par(27)=0.035;         %Coefficient Ki in hill function
+n1=2.5; %Assumed
+n2=2; %Assumed
 
-Par(28)=1;             %Total NFkB
-Par(29)=2;             %n1
-Par(30)=2;             %n2
-Par(31)=.5;            %Coefficient Ka in hill function
-Par(32)=2000;
+kb3=0.001;
+kb4=0.0001;
+
+tlIFN=2*10^-5;      %sc IFN translation
+tlTnf=1*10^-5;      %sc TNF translation
+
+% knin = 9.4/60; %1/min
+% klin = 0.0018/60; %1/min
+% Nt = 1; %uM
+% Ki = 0.035; %uM
+% Kn = 0.029; %uM
+% kt = 1.03/60; %1/uM 1/min
+% gamma = 0.017/60; %1/min
+% ktl = 0.024/60; %1/min
+% a = 1.05/60; %1/uM 1/min
+% ka = 0.24/60; %1/min
+% ki = 0.18/60; %1/min
+% kp = 0.036/60; %1/min
+% ka20 = 0.0018; %uM
+% A20 = 0.0026; %uM
+% IKKt = 2.0; %uM
+
 
 end
