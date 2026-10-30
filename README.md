@@ -8,7 +8,7 @@ Code and data to reproduce the figures of Wang AG, Mercado-Vásquez G, Son M, et
 - Tested on Windows 10 Pro (64-bit), Intel Core i5-13600K (14 cores), 64 GB RAM. No special hardware is needed; a multi-core CPU only shortens the optional recomputation.
 - Toolboxes: Deep Learning, Statistics and Machine Learning, Signal Processing, Parallel Computing (`parfor`; without it the loops run serially and are ~10× slower).
 - Third-party plotting functions are included in `functions/` (`Violin.m`, `violinplot.m`, `violin3.m` and variants; see `functions/license.txt`).
-- R (Bioconductor: limma, edgeR, EGSEA, org.Mm.eg.db, gplots) only for `R/Fig4_RNAseq.R`; nichenetr 2.2.1.1 (R 4.5.2) for `R/Fig4BC_S4AB_NicheNet.R`, which downloads the mouse NicheNet v2 networks (Zenodo 7074291) on first run.
+- R (Bioconductor: limma, edgeR, EGSEA, org.Mm.eg.db, gplots) only for `R/Fig4_RNAseq.R`; R 4.5.2 with nichenetr 2.2.1.1 (Bioconductor: limma, edgeR, org.Mm.eg.db; CRAN: tidyverse) for `R/Fig4BC_S4AB_NicheNet.R`, which downloads the mouse NicheNet v2 networks (Zenodo 7074291, ~190 MB) at each run.
 
 ## How to run
 1. Set MATLAB's current folder to this folder. All paths in the scripts are relative to it (each script adds `functions/`, `simulation_results/`, `classifier_results/` and `data/flow/` to the path), so the folder can be placed anywhere.
@@ -35,9 +35,9 @@ To recompute instead, set the flag at the top of the script to `true` (`runSimul
 | `FigS4.m` | Figure S4C–F |
 | `FigS6.m` | Figure S6B–C (Figure S6A was assembled from these results) |
 | `R/Fig4_RNAseq.R` | Figure 4A, 4J, S4G (RNA-seq re-analysis) |
-| `R/Fig4BC_S4AB_NicheNet.R` | Figure 4B–C, S4A–B (NicheNet ligand activity and regulatory potential) |
+| `R/Fig4BC_S4AB_NicheNet.R` | Figure 4B–C (NicheNet ligand activity; B, CpG; C, polyI:C) and S4A–B (regulatory potential; A, CpG; B, polyI:C) |
 
-Figures S1 and S5 are schematics. R scripts are also run from this folder (the NicheNet script writes to `output_nichenet/`).
+Figures S1 and S5 are schematics. R scripts are also run from this folder. The NicheNet script saves the four panels as PDF files in `output_nichenet/` (`Fig4B_…`, `Fig4C_…`, `FigS4A_…`, `FigS4B_…`); Figure S4B shows the first 89 of its 108 target genes.
 
 ## Data
 | Path | Content |
@@ -47,4 +47,4 @@ Figures S1 and S5 are schematics. R scripts are also run from this folder (the N
 | `data/flow/` | TLR9 flow cytometry: gated single-cell export used for Figure 5C, and the raw `.fcs` files (BD LSRFortessa, 03-Aug-2023) |
 | `data/rnaseq/` | RNA-seq counts (GEO: GSE260996) and CellTalkDB ligand–receptor pairs |
 
-The earlier analysis of the RNA-seq data (GEO: GSE260996) is at Zenodo (DOI: 10.5281/zenodo.14337874). This package (code and single-cell data) will be archived at Zenodo with its own DOI.
+The earlier analysis of the RNA-seq data (GEO: GSE260996) is at Zenodo (DOI: 10.5281/zenodo.14337874). This package (code and single-cell data) is archived at Zenodo, DOI: 10.5281/zenodo.23720837 (this DOI always resolves to the latest version).

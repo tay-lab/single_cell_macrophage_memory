@@ -328,14 +328,14 @@ d3=[];
 a20Dis=[];
 
 Ms=2000;
-ksc3=10.^[-6:5/20:-2];   % CHANGED 2026-10-18: theta range 1e-6 to 1e-2, as in the published Figure S6
+ksc3=10.^[-6:5/20:-2];   % theta range 1e-6 to 1e-2
 if runSimulation   % simulate 1000 cells for each theta (skipped when loading saved results)
 for k=1:length(ksc3)
     k
 % Ms=gamrnd(mnM/ssM,ssM,[mm 1]);   %TNF Receptor (Measured)
 
 ssM=ksc3(k);
-yina20=0.0001;   % CHANGED 2026-10-18: mean initial negative feedback = 1e-4 uM (Table 1); 1e-3 did not reproduce Figure S6B
+yina20=0.0001;   % mean initial negative feedback = 1e-4 uM (Table 1)
 Ms3=gamrnd(yina20/ssM,ssM,[mm 1]);
 parfor i=1:mm
     yin=zeros(23,1);
@@ -377,13 +377,13 @@ subplot(2,3,3)
 lnd=[];
 for k=1:4:length(ksc3)
 ssM=ksc3(k);
-yina20=0.0001;   % CHANGED 2026-10-18: mean initial negative feedback = 1e-4 uM (Table 1); 1e-3 did not reproduce Figure S6B
-xx=[1e-7:1e-7:3e-4];   % CHANGED 2026-10-18: plot range of the published panel
+yina20=0.0001;   % mean initial negative feedback = 1e-4 uM (Table 1)
+xx=[1e-7:1e-7:3e-4];   % plot range of Figure S6B
     plot(xx,gampdf(xx,yina20/ssM,ssM),"LineWidth",2)
-    xlim([0 3e-4])   % CHANGED 2026-10-18: as in the published panel
-    ylim([0 5e4])   % CHANGED 2026-10-18: as in the published panel
+    xlim([0 3e-4])
+    ylim([0 5e4])
 ylabel("Probability density") 
-xlabel("Initial Neg. FB expression (\muM)")   % CHANGED 2026-10-18: label as in the published panel
+xlabel("Initial Neg. FB expression (\muM)")
 hold on
 lnd=[lnd ["\theta="+num2str(ksc3(k))]];
 end
@@ -401,7 +401,7 @@ ylim([0 1])
 legend({"PIC->TNF","CpG->LPS"},"Location","Best")
 axis square
 set(gca,"XScale","log","FontSize",10)
-title("Initial Neg. FB variability")   % CHANGED 2026-10-18: title as in the published panel
+title("Initial Neg. FB variability")
 
 %% Shannon Distance for Total NFkB variability  -> Figure S6A (Gamma distributions) and S6B (JS distance) panel
 

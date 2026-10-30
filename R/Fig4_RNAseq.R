@@ -14,7 +14,6 @@
 # Figure 4B-C and S4A-B (NicheNet ligand activity) are produced by R/Fig4BC_S4AB_NicheNet.R.
 # Packages: limma, edgeR, dplyr, gplots, org.Mm.eg.db, ggplot2, RColorBrewer, EGSEA (Bioconductor).
 # Run with the working directory set to the repository root (the folder containing data/).
-# Note: not re-run on the analysis computer used for the revision (R not installed there).
 # =====================================================================================================
 library(limma)
 library(edgeR)

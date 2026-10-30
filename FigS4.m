@@ -25,7 +25,7 @@ blk=["Control","+ sTNFR1"];
 figure("Name","Figure S4C-D","Position",[50 50 700 600])
 for i=1:2
     p=pan{i};
-    rng(p{3})                                            %same random cells as the original analysis
+    rng(p{3})                                            %fixed seed: the same random cells are plotted at every run
     for b=1:2
         zz=data4.Experiment==p{1} & data4.Category==p{2}(b) & data4.Phase==2;
         subplot(2,2,2*(i-1)+b)

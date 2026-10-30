@@ -169,7 +169,7 @@ legend(tit2)
 %% Figure 5C: TLR9 levels in naive BMDMs (flow cytometry) and Gamma fit
 % Sample 6 (TLR9-APC, fixed + permeabilized), "Single Cells" gate exported from FlowJo/FACSDiva:
 % data/flow/export_Sample_6_TLR9_Fix+Perm_Single Cells.csv (raw .fcs files in data/flow/fcs).
-% Fit as in the original analysis: fitdist(...,"Gamma") on the positive APC intensities.
+% Gamma fit: fitdist(...,"Gamma") on the positive APC intensities.
 flowFile = 'data/flow/export_Sample_6_TLR9_Fix+Perm_Single Cells.csv';   % relative to the main code folder
 receptordist = readtable(flowFile);
 receptordist = table2array(receptordist(:,7));        % column 7 = 640nm_670/30_APC-A (TLR9)

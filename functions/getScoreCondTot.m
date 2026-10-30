@@ -1,5 +1,4 @@
 % Simulates one synthetic cell for the conditioned protocols (polyI:C -> TNF, CpG -> LPS). Used by FigS6.
-% Source: NFkB Project Andrew\Simulation\20260414 (Apr 2026); copied 2026-10-18 without code changes.
 function [s,Nf]=getScoreCondTot(Par,pp,rpkE,myExp2,M2,yin)
 options = odeset('NonNegative',1:18);
 

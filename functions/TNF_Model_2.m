@@ -1,5 +1,4 @@
 % ODE right-hand side of the NF-kB / IRF / STAT model (Methods, Eqs. 1-24). Used by getScore and getScoreCondTot.
-% Source: NFkB Project Andrew\Simulation\20260414 (Apr 2026); copied 2026-10-18 without code changes.
 function dy=TNF_Model_2(t,y,dt,Par,M,M2,IFNext,TNFext)
 % flag=1 (PolyIC), flag=0 CpG
     [knin, Nt, Ki, klin, Kn, kt,gamma,ktl,a,ka20,IKKt,Tdeg,Kca,kb,kd,ka,ki,kp,n1,n2,kdeg,kr,ks,kb3,kb4] = Params;

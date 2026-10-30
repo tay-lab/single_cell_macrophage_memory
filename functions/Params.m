@@ -1,5 +1,4 @@
 % Model parameters (Methods, Table 1). Used by TNF_Model_2.
-% Source: NFkB Project Andrew\Simulation\20260414 (Apr 2026); copied 2026-10-18 without code changes.
 function [knin, Nt, Ki, klin, Kn, kt,gamma,ktl,a,ka20,IKKt,Tdeg,Kca,kb,kd,ka,ki,kp,n1,n2,kdeg,ik_kr,ik_ks,kb3,kb4] = Params
 
 % Tdeg=[2*10^-4,7*10^-4,7.7*10^-4,8.3*10^-4]; % TNF loss  

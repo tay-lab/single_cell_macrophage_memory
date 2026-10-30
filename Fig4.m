@@ -26,7 +26,7 @@ ex=["sTNFR1 (polyI:C)","sTNFR1 (polyI:C)","sTNFR1 (CpG)","sTNFR1 (CpG)"];
 cats=["PolyIC -> TNF","PolyIC + sTNFR1 -> TNF","CpG -> LPS","CpG + sTNFR1 -> LPS"];
 figure("Position",[50 50 900 400])
 for i=1:4
-    if mod(i,2)==1, rng(12), end        %same random cells as the original analysis
+    if mod(i,2)==1, rng(12), end        %fixed seed: the same random cells are plotted at every run
     zz=data4.Experiment==ex(i) & data4.Category==cats(i) & data4.Phase==1;
     nfkb=data4.NfkB(zz,:);
     nfkb=nfkb(datasample(1:size(nfkb,1),100,'Replace',false),:);

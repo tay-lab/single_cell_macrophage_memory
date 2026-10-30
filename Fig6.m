@@ -82,23 +82,23 @@ yticks([])
 xlim([0 480])
 % xlim([0 240])
 set(gca,"FontSize",12)
-title(labTop(i),"FontSize",11)   % CHANGED 2026-10-18: published labels
+title(labTop(i),"FontSize",11)   % panel labels as in Figure 6
 
 subplot(2,nl,i+nl)
 yyaxis left
 plot(tt,mean(Nfkb),"LineWidth",2)
 xticks([0:120:480])
 xlabel("Time (min)")
-if i==1, ylabel("Norm. Nuclear NF-\kappaB"), end   % CHANGED 2026-10-18: label only the outer panels (avoids overlapping labels)
+if i==1, ylabel("Norm. Nuclear NF-\kappaB"), end   % label only the outer panels (avoids overlapping labels)
 ylim(clim)
 
 yyaxis right
 plot(tt,mean(tnfr),"LineWidth",2,"Color",col(1,:))
-if i==nl, ylabel("Norm. Total Receptor"), end   % CHANGED 2026-10-18: label only the outer panels (avoids overlapping labels)
+if i==nl, ylabel("Norm. Total Receptor"), end   % label only the outer panels (avoids overlapping labels)
 ylim([1 3])   % set to match the published panel (Fig 6C right axis, 1-3)
 xlim([0 480])
 set(gca,"FontSize",12)
-if i==1, legend(["NF-\kappaB","TNFR"],"Location","best"); end; title(labC(i),"FontSize",11)   % CHANGED 2026-10-18: published labels
+if i==1, legend(["NF-\kappaB","TNFR"],"Location","best"); end; title(labC(i),"FontSize",11)   % panel labels as in Figure 6
 
 end
 

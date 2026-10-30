@@ -1,5 +1,4 @@
 % Runs the single-cell simulations for each stimulation protocol and (pp>0) plots tracemaps/traces. Used by Fig5-7.
-% Source: NFkB Project Andrew\Simulation\20260414 (Apr 2026); copied 2026-10-18 without code changes.
 function [Model,tit]=getScore(Ms,pp,tt,nj,dt,tspan,yin,Par,M)
         figure("Position",[2000 20 1500 1200])
         % [~, ~, ~, ~, ~, ~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,~,tlIFN,tlTnf] = Params;

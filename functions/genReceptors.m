@@ -1,5 +1,4 @@
 % Draws initial TLR9 receptor levels from Gamma(2.2, 1420), the fit to the TLR9 flow data (Figure 5C).
-% Source: NFkB Project Andrew\Simulation\20260414 (Apr 2026); copied 2026-10-18 without code changes.
 function Ms1=genReceptors(mm)
 rng default
 % Ms1=gamrnd(4.32,1035,[mm 1]);   %TNF Receptor (Measured)

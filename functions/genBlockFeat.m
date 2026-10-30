@@ -39,7 +39,7 @@ for e = 1:size(E,1)
     end
 end
 % sIFNAR1 experiment (2024): all eight first-stimulus groups, second stimulus TNF (6) or LPS (7)
-S = load(fullfile(d,'peakfeatures_IFNblock.mat')); P = S.peakfeatures_IFNblock([1:62,64],:);   % row 63 excluded (as in the original analysis)
+S = load(fullfile(d,'peakfeatures_IFNblock.mat')); P = S.peakfeatures_IFNblock([1:62,64],:);   % row 63 is excluded
 codes = [16 17 0 3 1 4 2 5];
 stim2 = ["TNF","LPS"];
 names = ["Control","Control + sIFNAR1","CpG","CpG + sIFNAR1","PolyIC 300","PolyIC 300 + sIFNAR1","PolyIC 1000","PolyIC 1000 + sIFNAR1"];
