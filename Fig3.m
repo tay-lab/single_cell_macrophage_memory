@@ -243,9 +243,9 @@ xticklabels(["LSTM","SVM","Tree","Random"])
 ylabel("Accuracy")
 xlabel("Model")
 set(gca,"FontSize",12)
-
-
-figure("Name","LSTM ROC")
-plot(rocObj,ShowConfidenceIntervals=true,ShowModelOperatingPoint=false)
+% 
+% 
+% figure("Name","LSTM ROC")
+% plot(rocObj,ShowConfidenceIntervals=true,ShowModelOperatingPoint=false)
 
 % exportgraphics(gcf, 'myPlot.pdf', 'ContentType', 'vector');

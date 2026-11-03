@@ -197,14 +197,14 @@ text(xtips1,ytips1,fn(idxp),'HorizontalAlignment','left',...
 
 %% Fig 1E-H and SubFig 2A-B
 %Draw violin plots for each feature
-col=hsv(2);
+colE={[153 153 153; 250 125 125]/255, [153 153 153; 116 205 245]/255};   % Ctrl gray; CpG light red; PolyIC light blue
 xlb=[{"Ctrl","CpG"}; {"Ctrl","PolyIC"}]; 
 for jj=1:2
     [~,idxp]=sort(MIfeatE(:,jj),"descend");
     figure("Name","Phase 1")
     for i=1:12
         subplot(4,3,i)
-        violin3({datvioE{idxp(i),jj,1},datvioE{idxp(i),jj,2}},'facecolor',col,'mc',[],'medc','black','bw',mkE{idxp(i),jj,2}/3)
+        violin3({datvioE{idxp(i),jj,1},datvioE{idxp(i),jj,2}},'facecolor',colE{jj},'facealpha',1,'mc',[],'medc','black','bw',mkE{idxp(i),jj,2}/3)
         rn=ranksum(datvioE{idxp(i),jj,1},datvioE{idxp(i),jj,2});
         hold on
         xticklabels(xlb(jj,:))
@@ -216,14 +216,14 @@ for jj=1:2
     end
 end
 
-col=hsv(2);
+colL={[250 125 125; 204 39 39]/255, [116 205 245; 66 142 176]/255};   % naive light, conditioned dark (red, LPS; blue, TNF)
 xlb=[{"LPS_{naive}","LPS_{cond}"}; {"TNF_{naive}","TNF_{cond}"}]; 
 for jj=1:2
     [~,idxp]=sort(MIfeatL(:,jj),"descend");
     figure("Name","Phase 2")
     for i=1:12
         subplot(4,3,i)
-        violin3({datvioL{idxp(i),jj,1},datvioL{idxp(i),jj,2}},'facecolor',col,'mc',[],'medc','black','bw',mkL{idxp(i),jj,2}/3)
+        violin3({datvioL{idxp(i),jj,1},datvioL{idxp(i),jj,2}},'facecolor',colL{jj},'facealpha',1,'mc',[],'medc','black','bw',mkL{idxp(i),jj,2}/3)
         rn=ranksum(datvioL{idxp(i),jj,1},datvioL{idxp(i),jj,2});
         hold on
         xticklabels(xlb(jj,:))

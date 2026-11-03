@@ -24,7 +24,7 @@ nj=1000;     % # synthetic cells   % 1000 synthetic cells, as reported in the fi
 Ms=genReceptors(nj);
 M=2000;
 Par(1)=2.5*10^-5;       %sc IFN translation
-Par(2)=1*10^-5;          %sc TNF translation
+Par(2)=1*10^-3;          %sc TNF translation
 Par(3)=1;               %Total NF-kB
 Par(4)=2;               %Total IKK
 Par(5)=1;               %Total Ikkk
@@ -45,7 +45,7 @@ yin(21) = 0;    %Ligand IFNg
 
 [Model,tit]=simOrLoad('Fig7_BC', runSimulation, @() getScore(Ms,pp,tt,nj,dt,tspan,yin,Par,M), [1 7 12], {'NfkB','TNFR','IFNb','TNF'});   % Fig 7B-C, 1000 synthetic cells
 figure("Name","Figure 7B-C","Position",[20 20 1000 600])   % explicit figure (needed when results are loaded instead of simulated)
-%% (12) PIC->TNF, (7) PIC(sTNFR)->TNF"
+% %% (12) PIC->TNF, (7) PIC(sTNFR)->TNF"
 flag=1;
 clim=[0 3];
 a2p=[12 7];
