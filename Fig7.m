@@ -94,7 +94,7 @@ M=2000;
 figure("Name","Figure 7D-G","Position",[20 20 1000 600])   % explicit figure (needed when results are loaded instead of simulated)
 
 flag=3;
-clim=[0 2];
+clim=[0 3];
 a2p=[13 3 6 10];
 nl=length(a2p);
 col=hsv(10);
